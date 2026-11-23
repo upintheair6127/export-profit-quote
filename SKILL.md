@@ -1,7 +1,7 @@
 ---
 name: export-profit-quote
 description: Dynamic B2B export quotation, hidden-cost audit, and anti-discounting negotiation assistant for Chinese exporters and SOHO traders. Use whenever the user asks to calculate export quotes (EXW, FOB, CIF, DDP), check exchange rate buffers or hidden port/bank fees, build tiered MOQ pricing, check destination tariffs or shipping surcharges, or draft bilingual B2B quotation and counter-bargaining emails.
-allowed-tools: google google_finance
+allowed-tools: web_search, web_fetch
 ---
 
 # export-profit-quote
@@ -30,15 +30,16 @@ If core inputs like unit cost or destination/Incoterm are missing, ask 2 to 4 co
 
 ### 2. Live FX & Policy Verification
 
-* Fetch the current spot exchange rate using finance or web search tools. For Chinese exporters receiving foreign currency, apply a conservative FX safety buffer by **lowering** the quoting FX rate (typically 1.5% to 3.0% below the bank telegraphic buying rate, e.g. `Spot Buying Rate * 0.98`) so quote validity does not erode RMB margin. Show both the spot rate and the buffered quoting rate.
+* Fetch the current spot exchange rate using available web search or finance tools. If no live rate tool is available, ask the user to input today's bank telegraphic buying rate before proceeding.
+* For Chinese exporters receiving foreign currency, apply a conservative FX safety buffer by **lowering** the quoting FX rate (typically 1.5% to 3.0% below the bank telegraphic buying rate, e.g. `Spot Buying Rate * 0.98`). Why lower? Because you receive USD and settle in RMB — if the exchange rate drops during the quote validity period, you get fewer RMB per USD. A higher quoting rate prices as if you get more RMB, which means if the rate drops, you lose money. Show both the spot rate and the buffered quoting rate.
 * Check container capacity conservatively: use realistic usable volume (e.g., 25.5 to 26.5 CBM for a 20'GP floor-loaded, 54 to 58 CBM for a 40'GP, 65 to 68 CBM for a 40'HQ) rather than theoretical maximums, and note whether volume or weight caps out first.
-* When quoting CIF or DDP, or when shipping to markets with specific biosecurity/tariff rules (e.g., Australia ISPM 15 / BMSB season, US/EU tariff or de minimis shifts), run a quick web search so the pricing and loading advice reflect real market conditions.
+* When quoting CIF or DDP, or when shipping to markets with specific biosecurity/tariff rules (e.g., Australia — ISPM 15 applies year-round to solid wood packaging, while BMSB seasonal measures usually run 1 September to 30 April; US/EU tariff or de minimis shifts), run a quick web search so the pricing and loading advice reflect real market conditions.
 
 ### 3. Hidden-Cost Audit (Margin Protection)
 
 Before outputting any quote, audit and itemize potential margin leaks in a clear Chinese internal breakdown:
 
-* Tax rebate formula (when VAT invoice is available): `Net Cost = (VAT-Inclusive Cost / (1 + VAT Rate)) * (1 + VAT Rate - Rebate Rate)`. Note the working-capital tie-up for the VAT refund period.
+* Tax rebate formula (when VAT invoice is available): `Net Cost = (VAT-Inclusive Cost / (1 + VAT Rate)) * (1 + VAT Rate - Rebate Rate)`. Ask for the VAT rate and the rebate rate as two separate inputs — do not assume the VAT rate is 13% (13% is common for goods, but confirm it for the product). Note the working-capital tie-up for the VAT refund period.
 * Domestic export expenses: inland trucking or feeder barge (especially for secondary/inland ports like Nantong or Foshan routing via Shanghai/Shenzhen - never silently switch the user's FOB port without flagging the hub-port option and cost difference), port THC/ORC, customs brokerage, inspection/fumigation, and document fees.
 * Financial friction: bank wire/intermediary fees, FX conversion spread, and capital tie-up cost if offering O/A or long payment terms.
 * CIF/DDP extras: marine insurance (typically 110% of CIF value), destination port handling, customs clearance, and import duty/VAT exposure.
